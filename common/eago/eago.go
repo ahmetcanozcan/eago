@@ -10,9 +10,14 @@ import (
 // Info contains general information about eago software
 var Info info = info{
 	FullName:   "Eago Javascript Runtime",
-	CommitHash: "",
-	BuildDate:  "",
+	CommitHash: commitHash,
+	BuildDate:  buildDate,
 }
+
+var (
+	buildDate  string
+	commitHash string
+)
 
 type info struct {
 	// Full name of eago software
@@ -39,6 +44,9 @@ func (i info) BuildVersionString() string {
 	version := CurrentVersion.String()
 	if i.CommitHash != "" {
 		version += "-" + i.CommitHash
+	}
+	if i.BuildDate != "" {
+		version += "  " + i.BuildDate
 	}
 	osArch := runtime.GOOS + "/" + runtime.GOARCH
 	return fmt.Sprintf("%s %s %s", i.FullName, version, osArch)

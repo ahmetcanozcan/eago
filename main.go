@@ -15,9 +15,7 @@ limitations under the License.
 */
 package main
 
-import (
-	"github.com/ahmetcanozcan/eago/cmd"
-)
+import "github.com/ahmetcanozcan/eago/cmd"
 
 func main() {
 	cmd.Execute()
