@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -21,7 +22,9 @@ func (p URLPath) Raw() string {
 func (p URLPath) Check(url string) bool {
 	url = cleanURLTrials(url)
 	parts := splitPath(url)
+	fmt.Println("got", url, "raw", p.raw)
 	if len(parts) != len(p.parts) {
+		fmt.Println("a", parts, len(parts), p.parts, len(p.parts))
 		return false
 	}
 	for i, v := range parts {
@@ -29,9 +32,11 @@ func (p URLPath) Check(url string) bool {
 			continue
 		}
 		if p.parts[i].content != v {
+			fmt.Println("ab")
 			return false
 		}
 	}
+	fmt.Println("c")
 	return true
 }
 
@@ -50,7 +55,7 @@ func (p URLPath) GetURLParams(url string) map[string]string {
 // NewURLPath returns new url path
 func NewURLPath(s string) *URLPath {
 	s = cleanURLTrials(s)
-	sarr := strings.Split(s, "/")
+	sarr := splitPath(s)
 	parts := make([]urlPart, len(sarr))
 	pcount := 0
 	for i, v := range sarr {

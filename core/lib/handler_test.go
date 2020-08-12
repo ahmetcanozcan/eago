@@ -14,6 +14,7 @@ func TestParseURLFromFilename(t *testing.T) {
 		c      string
 		method string
 	}{
+		"index.js":          {c: "", method: constants.HTTP.ALL},
 		"test/file.js":      {c: "test/file", method: constants.HTTP.ALL},
 		"test/index.js":     {c: "test/", method: constants.HTTP.ALL},
 		"test/index.get.js": {c: "test/", method: constants.HTTP.GET},

@@ -51,11 +51,16 @@ func TestURL(t *testing.T) {
 
 	t.Run("Check", func(t *testing.T) {
 		c := qt.New(t)
-
-		constURL := "/this/is/a/test/"
-		constURLPath := NewURLPath(constURL)
-		for _, v := range genareteTestURLStrings(constURL) {
-			c.Assert(constURLPath.Check(v), qt.IsTrue)
+		constURLs := []string{
+			"/this/is/a/test/",
+			"/",
+			"",
+		}
+		for _, constURL := range constURLs {
+			constURLPath := NewURLPath(constURL)
+			for _, v := range genareteTestURLStrings(constURL) {
+				c.Assert(constURLPath.Check(v), qt.IsTrue)
+			}
 		}
 
 		t.Run("ParamURLPart", func(t *testing.T) {

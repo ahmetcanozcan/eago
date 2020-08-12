@@ -73,9 +73,9 @@ func createEagoJSON(filename string) {
 	_, name := filepath.Split(filename)
 
 	_json := []byte(fmt.Sprintf(`{
-		name : "%s",
-		version : "1.0.1",
-		dependincies : {}
+		"name" : "%s",
+		"version" : "1.0.1",
+		"dependincies" : {}
 }
 `, name))
 

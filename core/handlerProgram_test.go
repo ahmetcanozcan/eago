@@ -13,7 +13,7 @@ import (
 func TestParseHandlers(t *testing.T) {
 	c := qt.New(t)
 	cwd, _ := os.Getwd()
-	dirname := filepath.Join(cwd, "..", "test_files", "handlers")
+	dirname := filepath.Join(cwd, "..", "test_files", "project", "handlers")
 	fmt.Println(dirname)
 	hb, err := parseHandlers(dirname)
 	c.Assert(err, qt.IsNil)
