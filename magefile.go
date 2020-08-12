@@ -54,3 +54,20 @@ func flagEnv() map[string]string {
 		"BUILD_DATE":  time.Now().Format("2006-01-02T15:04:05Z0700"),
 	}
 }
+
+var docker = sh.RunCmd("docker")
+
+// Docker builds eago Docker container
+func Docker() error {
+	if err := docker("build", "-t", "eago", "."); err != nil {
+		return err
+	}
+	docker("rm", "-f", "eago-build")
+	if err := docker("run", "--name", "eago-build", "eago ls /go/src/github.com/ahmetcanozcan/eago/"); err != nil {
+		return err
+	}
+	if err := docker("cp", "eago-build:/go/src/github.com/ahmetcanozcan/eago/eago", "."); err != nil {
+		return err
+	}
+	return docker("rm", "eago-build")
+}
