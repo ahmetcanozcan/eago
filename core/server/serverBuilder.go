@@ -13,8 +13,8 @@ import (
 // LogArguments parameter of  a log function
 type LogArguments struct {
 	// Execution time of whole request in milliseconds format
-	Time float32
-
+	Time   float32
+	Status int
 	Method string
 	Path   string
 }
@@ -61,13 +61,14 @@ func (b *Builder) Build() Server {
 			}
 		}
 
-		elapsed := time.Since(start)
-		logArgs := &LogArguments{
-			Time:   float32(elapsed.Microseconds()) / 1000.0,
-			Method: string(ctx.Method()),
-			Path:   string(ctx.Path()),
-		}
 		if b.logFunc != nil {
+			elapsed := time.Since(start)
+			logArgs := &LogArguments{
+				Time:   float32(elapsed.Microseconds()) / 1000.0,
+				Method: string(ctx.Method()),
+				Path:   string(ctx.Path()),
+				Status: ctx.Response.StatusCode(),
+			}
 			b.logFunc(logArgs)
 		}
 	}
@@ -86,7 +87,7 @@ type FileServerOptions struct {
 }
 
 // NewFileServerHandler :
-func NewFileServerHandler(opt *FileServerOptions) HandlerFunc {
+func NewFileServerHandler(opt FileServerOptions) HandlerFunc {
 	opt.filDefaults()
 	fs := &fasthttp.FS{
 		Root:       opt.Root,
@@ -96,8 +97,22 @@ func NewFileServerHandler(opt *FileServerOptions) HandlerFunc {
 	fsHandler := fs.NewRequestHandler()
 
 	return func(ctx *fasthttp.RequestCtx) bool {
+		cp := filepath.Join(opt.Root, string(ctx.Path()))
+		stat, err := os.Stat(cp)
+		if err != nil {
+			return false
+		}
+
+		if stat.IsDir() {
+			_, err := os.Stat(filepath.Join(cp, "index.html"))
+			if err != nil {
+				return false
+			}
+			fsHandler(ctx)
+			return true
+		}
 		fsHandler(ctx)
-		return false
+		return true
 	}
 }
 
@@ -121,7 +136,7 @@ func (opt *FileServerOptions) filDefaults() {
 	if opt.IndexNames == nil {
 		opt.IndexNames = []string{"index.html"}
 	}
-	if len(opt.Root) > 0 {
+	if len(opt.Root) == 0 {
 		opt.Root = "."
 	}
 }

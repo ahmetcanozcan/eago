@@ -38,12 +38,15 @@ func Start(opt StartOptions) {
 	builder := server.NewServerBuilder()
 	// Handler
 	builder.AddHandlerFunc(getHandlerHandlerFunc(bundles))
-	// Fileserver
-	fs := server.NewFileServerHandler(
-		&server.FileServerOptions{
-			Root: filepath.Join(opt.AppDir, "files", config.EagoJSON.StaticPath),
-		})
-	builder.AddHandlerFunc(fs)
+	if config.EagoJSON.StaticPath != "" {
+		// Fileserver
+		rootPath := filepath.Join(lib.FileDirPath, config.EagoJSON.StaticPath)
+		fs := server.NewFileServerHandler(
+			server.FileServerOptions{
+				Root: rootPath,
+			})
+		builder.AddHandlerFunc(fs)
+	}
 	// 404 handler
 	builder.AddHandlerFunc(func(ctx *fasthttp.RequestCtx) bool {
 		script, ok := bundles["/404/"]
@@ -52,8 +55,9 @@ func Start(opt StartOptions) {
 			return false
 		}
 
-		file, err := os.Open(filepath.Join(opt.AppDir, "files", "404.html"))
+		file, err := os.Open(filepath.Join(opt.AppDir, "files", config.EagoJSON.NotFound))
 		if err == nil {
+			ctx.Response.Header.Set("Content-Type", "text/html")
 			reader := bufio.NewReader(file)
 			for {
 				line, _, err := reader.ReadLine()
@@ -64,13 +68,13 @@ func Start(opt StartOptions) {
 			}
 			return false
 		}
-
+		ctx.SetStatusCode(404)
 		ctx.Write([]byte(fmt.Sprintf("Can not %s %s ", string(ctx.Method()), string(ctx.Path()))))
 		return false
 	})
 	builder.SetLogFunc(func(args *server.LogArguments) {
 		loggers.Default().Info(
-			fmt.Sprintf("%s %s in %.2f ms", args.Method, args.Path, args.Time),
+			fmt.Sprintf("%s %s in %.2f ms  %d", args.Method, args.Path, args.Time, args.Status),
 		)
 	})
 	s := builder.Build()

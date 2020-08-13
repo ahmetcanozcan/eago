@@ -1,7 +1,0 @@
-hello world
-
-this is a 
-
-text message for
-
-test

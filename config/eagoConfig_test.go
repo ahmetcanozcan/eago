@@ -1,17 +1,23 @@
 package config
 
 import (
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/spf13/viper"
 )
 
 func TestLoadEagoJSON(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
-	v.Set("name", testName)
-	jsonC, err := loadEagoJSON(v)
+
+	jsonC, err := loadEagoJSON(strings.NewReader(`
+		{
+			"name" : "test",
+			"staticPath" : "public"
+		}
+	`))
 	c.Assert(err, qt.IsNil)
-	c.Assert(jsonC.Name, qt.Equals, testName)
+	c.Assert(jsonC.Name, qt.Equals, "test")
+	c.Assert(jsonC.Port, qt.Equals, 3000)
+	c.Assert(jsonC.StaticPath, qt.Equals, "public")
 }

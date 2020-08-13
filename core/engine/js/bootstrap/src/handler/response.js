@@ -15,3 +15,7 @@ response.status = function () {
   }
   return status;
 };
+
+response.writeln = function (msg) {
+  response.write(msg + "\n");
+};

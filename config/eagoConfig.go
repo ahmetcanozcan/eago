@@ -1,11 +1,12 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
-
-	"github.com/spf13/viper"
 )
 
 var (
@@ -39,6 +40,9 @@ type eagoJSON struct {
 	// StaticPath
 	StaticPath string `json:"staticPath"`
 
+	// NotFound
+	NotFound string `json:"notFound"`
+
 	Dependincies    map[string]string `json:"dependincies"`
 	DevDependincies map[string]string `json:"devDependincies"`
 }
@@ -57,12 +61,16 @@ func (ej eagoJSON) Address() string {
 	return fmt.Sprintf(":%d", ej.Port)
 }
 
-var eagoJSONDefaultValues = map[string]interface{}{
-	"port":       3000,
-	"name":       "unnamed",
-	"version":    "1.0.0",
-	"eagoEnv":    "development",
-	"staticPath": ".",
+func (ej *eagoJSON) fillDefaults() {
+	if ej.Name == "" {
+		ej.Name = "unnamed"
+	}
+	if ej.NotFound == "" {
+		ej.NotFound = "404.html"
+	}
+	if ej.Port == 0 {
+		ej.Port = 3000
+	}
 }
 
 func parseEago(dirname string) {
@@ -71,8 +79,7 @@ func parseEago(dirname string) {
 		// TODO: log warn
 		fmt.Println(err)
 	}
-	v := readConfig(reader, eagoJSONDefaultValues, "json")
-	config, err := loadEagoJSON(v)
+	config, err := loadEagoJSON(reader)
 	if err != nil {
 		// TODO: Fatal error
 		fmt.Println(err)
@@ -81,10 +88,15 @@ func parseEago(dirname string) {
 	EagoJSON = config
 }
 
-func loadEagoJSON(cfg *viper.Viper) (eagoJSON, error) {
-	var json eagoJSON
-	if err := cfg.Unmarshal(&json); err != nil {
-		return json, err
+func loadEagoJSON(reader io.Reader) (eagoJSON, error) {
+	var _json eagoJSON
+	jsonBytes, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return _json, err
 	}
-	return json, nil
+	if err := json.Unmarshal(jsonBytes, &_json); err != nil {
+		return _json, err
+	}
+	_json.fillDefaults()
+	return _json, nil
 }
