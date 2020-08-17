@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/ahmetcanozcan/eago/common/eagrors"
+	"github.com/ahmetcanozcan/eago/config"
 	"github.com/ahmetcanozcan/eago/core/compiler"
 	"github.com/ahmetcanozcan/eago/core/engine/js/modules"
 	"github.com/ahmetcanozcan/eago/core/lib"
@@ -25,6 +26,8 @@ func RequireModule(vm *otto.Otto, name string) (*otto.Object, error) {
 		return val, nil
 	}
 
+	// TODO: Set Mutex lock for safe concurrent processing
+
 	mod, ok := modules.GetSystemModule(name)
 	if ok {
 		val = mod.Export()
@@ -35,7 +38,18 @@ func RequireModule(vm *otto.Otto, name string) (*otto.Object, error) {
 	if filepath.IsAbs(name) {
 		exactPath = name
 	} else {
-		exactPath = filepath.Join(lib.ModuleDirPath, name)
+		// if module name starts with '@' it refers a 3rd party package
+		if strings.HasPrefix(name, "@/") {
+			prefix := "@/" + config.EagoJSON.Name
+			// if projects is a package then delete
+			if config.EagoJSON.Package && strings.HasPrefix(name, prefix) {
+				exactPath = filepath.Join(lib.BasePath, name[len(prefix):])
+			} else {
+				exactPath = filepath.Join(lib.PackageDirPath, name[2:])
+			}
+		} else {
+			exactPath = filepath.Join(lib.ModuleDirPath, name)
+		}
 	}
 
 	if !strings.HasSuffix(exactPath, ".js") {

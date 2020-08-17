@@ -35,6 +35,7 @@ func getRequestObject(ctx *fasthttp.RequestCtx, vm *otto.Otto, opt HandlerRuntim
 		obj.Set("method", r.method()),
 		obj.Set("params", r.params()),
 		obj.Set("header", r.headerFunc()),
+		obj.Set("body", r.body()),
 	)
 	if err != nil {
 		// TODO:
@@ -63,6 +64,15 @@ func (r *requestObject) headerFunc() interface{} {
 	return func(name string) string {
 		return string(r.ctx.Request.Header.Peek(name))
 	}
+}
+
+func (r *requestObject) body() *otto.Object {
+	o := lib.GetEmptyObject(r.vm)
+	o.Set("text", func(call otto.FunctionCall) otto.Value {
+		v, _ := otto.ToValue(string(r.ctx.Request.Body()))
+		return v
+	})
+	return o
 }
 
 func getResponseObject(ctx *fasthttp.RequestCtx, vm *otto.Otto, opt HandlerRuntimeInfo) otto.Value {

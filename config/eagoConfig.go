@@ -15,30 +15,34 @@ var (
 )
 
 type eagoJSON struct {
+	// Path of eago.json file
+	path string
 
+	core *eagoJSON
 	// Name of the eago appliction or module
 	// for modules, name should be repo url
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 
 	// Version of the application or module
-	Version string `json:"version"`
+	Version string `json:"version,omitempty"`
 
 	// Author of the application or module
 	// it should be formatted as "FULL_NAME <email_address>"
-	Author string `json:"author"`
+	Author string `json:"author,omitempty"`
 
 	// Module represents this appliction is module or not
-	Module bool `json:"module"`
+	Package bool `json:"package,omitempty"`
 
 	// EagoEnv is target of the application.
 	// it would be 'production', 'development' or 'debug'
-	EagoEnv string `json:"eagoEnv"`
+
+	EagoEnv string `json:"eagoEnv,omitempty"`
 
 	// Port number that eago application will listen
 	Port int `json:"port"`
 
 	// StaticPath
-	StaticPath string `json:"staticPath"`
+	StaticPath string `json:"staticPath,omitempty"`
 
 	// NotFound
 	NotFound string `json:"notFound"`
@@ -62,19 +66,35 @@ func (ej eagoJSON) Address() string {
 }
 
 func (ej *eagoJSON) fillDefaults() {
-	if ej.Name == "" {
-		ej.Name = "unnamed"
-	}
 	if ej.NotFound == "" {
 		ej.NotFound = "404.html"
 	}
 	if ej.Port == 0 {
 		ej.Port = 3000
 	}
+	if ej.Dependincies == nil {
+		ej.Dependincies = make(map[string]string)
+	}
+	if ej.DevDependincies == nil {
+		ej.DevDependincies = make(map[string]string)
+	}
+}
+
+func (ej eagoJSON) Save() error {
+	data, err := json.MarshalIndent(ej, "", "\t")
+	if err != nil {
+		return err
+	}
+	if err = ioutil.WriteFile(ej.path, data, 0644); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func parseEago(dirname string) {
-	reader, err := os.Open(filepath.Join(dirname, "./eago.json"))
+	path := filepath.Join(dirname, "./eago.json")
+	reader, err := os.Open(path)
 	if err != nil {
 		// TODO: log warn
 		fmt.Println(err)
@@ -86,6 +106,7 @@ func parseEago(dirname string) {
 		return
 	}
 	EagoJSON = config
+	EagoJSON.path = path
 }
 
 func loadEagoJSON(reader io.Reader) (eagoJSON, error) {

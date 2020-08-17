@@ -24,7 +24,9 @@ var newProjectCmd = &cobra.Command{
 			dirname = filepath.Join(cwd, dirname)
 		}
 		force, _ := cmd.Flags().GetBool("force")
-		createNewProject(dirname, force)
+		if err := createNewProject(dirname, force); err != nil {
+			fmt.Println(err)
+		}
 	},
 }
 
@@ -40,70 +42,50 @@ func createNewProject(baseDir string, force bool) error {
 		filepath.Join(baseDir, "handlers"),
 	}
 
-	if exist := eagofs.IsExist(baseDir); exist {
-		if !eagofs.IsDir(baseDir) {
-			return eagrors.NewError(baseDir + " already exists but not a directory")
-		}
-		isEmpty := eagofs.IsEmpty(baseDir)
-		if !isEmpty && !force {
-			return eagrors.NewError(baseDir + " already exists and is not empty. See --force.")
-		} else if !isEmpty && force {
-			all := append(dirs, filepath.Join(baseDir, "start.js"))
-			all = append(all, filepath.Join(baseDir, "eago.json"))
-			for _, path := range all {
-				if eagofs.IsExist(path) {
-					return eagrors.NewError(path + " already exists")
+	if err := runSpinnerTask("Check folder", func() error {
+		if exist := eagofs.IsExist(baseDir); exist {
+			if !eagofs.IsDir(baseDir) {
+				return eagrors.NewError(baseDir + " already exists but not a directory")
+			}
+			isEmpty := eagofs.IsEmpty(baseDir)
+			if !isEmpty && !force {
+				return eagrors.NewError(baseDir + " already exists and is not empty. See --force.")
+			} else if !isEmpty && force {
+				all := append(dirs, filepath.Join(baseDir, "start.js"))
+				all = append(all, filepath.Join(baseDir, "eago.json"))
+				for _, path := range all {
+					if eagofs.IsExist(path) {
+						return eagrors.NewError(path + " already exists")
+					}
 				}
 			}
 		}
+		return nil
+	}); err != nil {
+		return err
 	}
 
-	for _, dir := range dirs {
-		if err := eagofs.MkdirAll(dir, 0777); err != nil {
-			return eagrors.NewErrorWithCause(err, "Failed to create dir "+dir)
+	if err := runSpinnerTask("Create files", func() error {
+		for _, dir := range dirs {
+			if err := eagofs.MkdirAll(dir, 0777); err != nil {
+				return eagrors.NewErrorWithCause(err, "Failed to create dir "+dir)
+			}
 		}
+
+		if err := createEagoJSON(baseDir, false); err != nil {
+			return err
+		}
+
+		if err := createStartJS(baseDir); err != nil {
+			return err
+		}
+		if err := createGitIgnore(baseDir); err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
+		return err
 	}
 
-	createEagoJSON(baseDir)
-	createStartJS(baseDir)
 	return nil
-}
-
-func createEagoJSON(filename string) {
-	_, name := filepath.Split(filename)
-
-	_json := []byte(fmt.Sprintf(`{
-		"name" : "%s",
-		"version" : "1.0.1",
-		"dependincies" : {}
-}
-`, name))
-
-	file, err := os.Create(filepath.Join(filename, "eago.json"))
-	if err != nil {
-		fmt.Println(err)
-		//panic(eagrors.NewErrorWithCause(err, "can not create eago.json"))
-	}
-	_, err = file.Write(_json)
-	if err != nil {
-		fmt.Println(err)
-		//panic(eagrors.NewErrorWithCause(err, "can not create eago.json"))
-	}
-}
-
-func createStartJS(basedir string) {
-
-	file, err := os.Create(filepath.Join(basedir, "start.js"))
-	if err != nil {
-		fmt.Println(err)
-		//panic(eagrors.NewErrorWithCause(err, "can not create eago.json"))
-	}
-	_, err = file.Write([]byte(
-		`const msg = "Eago Application started.";
-console.log(msg);`))
-	if err != nil {
-		fmt.Println(err)
-		//panic(eagrors.NewErrorWithCause(err, "can not create eago.json"))
-	}
-
 }

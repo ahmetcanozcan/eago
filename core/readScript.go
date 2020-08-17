@@ -2,6 +2,7 @@ package core
 
 import (
 	"path/filepath"
+	"strings"
 
 	"github.com/ahmetcanozcan/eago/common/eagofs"
 	"github.com/ahmetcanozcan/eago/core/compiler"
@@ -11,6 +12,10 @@ import (
 func parseScriptsFromDir(dirname string) (map[string]*compiler.Script, error) {
 	result := make(map[string]*compiler.Script)
 	err := eagofs.NewDirReader(dirname).Read(func(filename string) error {
+		// If this file is not a JS file, ignore it.
+		if !strings.HasSuffix(filename, ".js") {
+			return nil
+		}
 		script, err := compiler.ReadScript(filepath.Join(dirname, filename))
 		if err != nil {
 			return err
@@ -36,7 +41,6 @@ func evaluateSciptsToBundles(scripts map[string]*compiler.Script) (map[string]*l
 			prog,
 			lib.NewProgramPath(key),
 		)
-
 	}
 	return bundles, nil
 }

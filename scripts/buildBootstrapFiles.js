@@ -18,7 +18,7 @@ const handleErr = (err) => {
   }
 };
 
-["eago", "handler"].forEach((typeName) => {
+["eago", "handler", "test"].forEach((typeName) => {
   const dirPath = path.join(bootstrapSrcPath, typeName);
   fs.readdir(
     dirPath,
