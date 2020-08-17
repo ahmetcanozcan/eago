@@ -1,0 +1,34 @@
+version: 2.0
+
+jobs:
+  test:
+    docker:
+      - image: circleci/golang:latest
+    working_directory: /go/src/github.com/ahmetcanozcan/eago
+    steps: 
+      - checkout
+
+      - run:
+          name: "Fetch dependencies"
+          command: >
+            go get -t -v ./...
+      # Only run gofmt, vet & lint against the latest Go version
+      - run:
+          name: "Run golint"
+          command: >
+              go get -u golang.org/x/lint/golint
+              golint ./...
+      - run:
+          name: "Run gofmt"
+          command: diff -u <(echo -n) <(gofmt -d -e .)
+      - run:
+          name: "Run go vet"
+          command: go vet -v ./...
+      
+          - run: go test -v  ./...
+
+workflows:
+  version: 2
+  build:
+    jobs:
+     - test
