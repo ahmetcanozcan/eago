@@ -19,6 +19,23 @@
   A <code> JavaScript</code> runtime for developing maintainable web apps.
 </div>
 <br>
+
+<div align="center">
+
+<a href="https://circleci.com/gh/ahmetcanozcan/eago"> 
+<img src="https://img.shields.io/circleci/build/gh/ahmetcanozcan/eago" />
+</a>
+
+<a>
+<img src="https://img.shields.io/github/license/ahmetcanozcan/eago" />
+</a>
+
+<a href="https://goreportcard.com/report/github.com/ahmetcanozcan/eago">
+<img src="https://goreportcard.com/badge/github.com/ahmetcanozcan/eago">
+</a>
+
+</div>
+<br>
 <br>
 
 ## Features
