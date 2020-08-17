@@ -1,0 +1,10 @@
+{
+  "name": "spa",
+  "version": "0.1.0",
+  "package": false,
+  "port": 3000,
+  "staticPath": "public",
+  "notFound": "public/index.html",
+  "dependincies": {},
+  "devDependincies": {}
+}

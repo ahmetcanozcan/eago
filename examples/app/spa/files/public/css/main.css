@@ -1,0 +1,20 @@
+/**
+  Main CSS
+*/
+
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,500&display=swap");
+
+* {
+  box-sizing: border-box;
+  font-family: "Montserrat", sans-serif;
+}
+
+body {
+  padding: 3rem;
+  font-size: 26px;
+}
+
+#url {
+  display: inline-block;
+  opacity: 0.5;
+}
