@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="main.css" />
+    <title>TODO APP</title>
+  </head>
+  <body>
+    <div id="app">
+      <div class="header">
+        {{title}}
+      </div>
+      <div class="todo-grid title">
+        <div>Task</div>
+        <div>Priority</div>
+      </div>
+      <div v-if="todos.length > 0" class="list-body">
+        <div v-for="todo in listedTodos" class="todo-grid">
+          <div>
+            <div class="todo-util-box">
+              <img
+                @click="deleteTodo(todo.id)"
+                src="https://img.icons8.com/metro/26/000000/delete.png"
+              />
+            </div>
+            {{todo.content}}
+          </div>
+          <div>
+            <div class="inc-button" @click="incPriority(todo.id,-1)">-</div>
+            {{todo.priority}}
+            <div class="inc-button" @click="incPriority(todo.id,1)">+</div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        v-if="todos.length > 0"
+        style="background-color: rgba(59, 52, 52, 0.685); height: 0.4rem;"
+      ></div>
+      <div class="new-todo">
+        <div class="todo-grid input-wrapper">
+          <input placeholder="Content" type="text" v-model="content" />
+          <input placeholder="Priority" type="text" v-model="priority" />
+        </div>
+        <div>
+          <button @click="addTodo">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="main.js"></script>
+  </body>
+</html>

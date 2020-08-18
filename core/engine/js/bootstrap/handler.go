@@ -18,7 +18,13 @@ func init() {
 }
  
 var handlerBootstrapJS string = `
-  response.send = (function () {
+  request.body.json = (function () {
+  textFunction = request.body.text;
+  return function () {
+    return JSON.parse(textFunction());
+  };
+})();
+response.send = (function () {
   function send(value) {
     var v = JSON.stringify(value);
     response.write(v);

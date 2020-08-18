@@ -1,7 +1,6 @@
 package modules
 
 import (
-	"strconv"
 	"strings"
 
 	"github.com/ahmetcanozcan/eago/core/drivers"
@@ -56,22 +55,14 @@ func (s *SQL) execQuery(call otto.FunctionCall) otto.Value {
 }
 
 func (s *SQL) getOttoValueFromRowSlice(rows []drivers.SQLRow) otto.Value {
-	res := lib.GetEmptyObject(s.vm)
-	for i, row := range rows {
-		rowObj, err := s.vm.ToValue(row)
-		if err != nil {
-			panic(err)
-		}
-		ind := strconv.Itoa(i)
-		res.Set(ind, rowObj)
-	}
-	return res.Value()
+	v, _ := s.vm.ToValue(rows)
+	return v
 }
 
 func isSelectQuery(query string) bool {
 	query = strings.TrimLeft(query, "\t\n\r ")
 	head := query[:len("SELECT")]
-	return head == "SELECT" || head == "select"
+	return strings.ToUpper(head) == "SELECT"
 }
 
 // NewSQLModule :
@@ -81,12 +72,19 @@ func NewSQLModule() *SQL {
 
 // Export :
 func (s *SQL) Export() *otto.Object {
-	val, _ := s.vm.ToValue(func(call otto.FunctionCall) otto.Value {
+	o := lib.GetEmptyObject(s.vm)
+	o.Set("Postgres", func(call otto.FunctionCall) otto.Value {
 		_s := NewSQLModule()
+		dsn := call.Argument(0)
+		if dsn.IsString() {
+			if err := _s.driver.Connect("postgres", dsn.String()); err != nil {
+				panic(_s.vm.MakeCustomError("DB CONNECTION ERROR", err.Error()))
+			}
+		}
 		call.This.Object().Set("exec", _s.execQuery)
 		call.This.Object().Set("connect", _s.getConnectFunc())
 		call.This.Object().Set("disconnect", _s.disconnect)
 		return call.This
 	})
-	return val.Object()
+	return o
 }

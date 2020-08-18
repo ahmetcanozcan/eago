@@ -1,0 +1,113 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap");
+
+* {
+  box-sizing: border-box;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.3rem;
+}
+
+body,
+html {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  text-align: center;
+}
+
+#app {
+  margin-top: 10vh;
+  width: 50%;
+  display: inline-block;
+}
+
+#app .header {
+  font-size: 3.4rem;
+  letter-spacing: 4px;
+  text-align: center;
+  margin-bottom: 10vh;
+}
+
+.todo-grid {
+  display: grid;
+  grid-template-columns: 72% auto;
+}
+
+.todo-grid > div {
+  text-align: left;
+  padding: 0.2rem 2rem;
+}
+.todo-grid > div:last-child {
+  text-align: center !important;
+}
+.todo-grid > div:first-child {
+  position: relative;
+}
+
+.todo-grid .todo-util-box {
+  position: absolute;
+  right: 1rem;
+  text-align: right;
+  height: 100%;
+  width: 100%;
+}
+.todo-grid .todo-util-box > * {
+  opacity: 0.3;
+  transition: 300ms;
+  cursor: pointer;
+}
+.todo-grid .todo-util-box > *:hover {
+  opacity: 1;
+}
+
+.title.todo-grid > div {
+  background-color: rgba(245, 245, 245, 0.322);
+  text-align: center;
+}
+
+.todo-grid .inc-button {
+  display: inline-block;
+  font-size: 100%;
+  opacity: 0.4;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 300ms;
+}
+.todo-grid .inc-button:hover {
+  opacity: 0.7;
+}
+
+.todo-grid > div {
+  border: 1px solid rgba(59, 52, 52, 0.685);
+}
+.todo-grid.title > div:first-child {
+  border-top-left-radius: 15px;
+}
+.todo-grid.title > div:last-child {
+  border-top-right-radius: 15px;
+}
+
+.no-todo-text {
+  padding: 0.3rem 0rem;
+  font-size: 1.4rem;
+  color: rgba(0, 0, 0, 0.486);
+  letter-spacing: 8px;
+  border: 1px solid rgba(59, 52, 52, 0.685);
+}
+
+.input-wrapper {
+  width: 100%;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 0.2rem 2rem;
+}
+
+.new-todo button {
+  width: 100%;
+  border-bottom-right-radius: 15px;
+  border-bottom-left-radius: 15px;
+  border: 1px solid gray;
+}

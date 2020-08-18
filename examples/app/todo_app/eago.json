@@ -1,0 +1,10 @@
+{
+  "name": "todo_app",
+  "version": "0.1.0",
+  "package": false,
+  "port": 3000,
+  "notFound": "404.html",
+  "staticPath": ".",
+  "dependincies": {},
+  "devDependincies": {}
+}

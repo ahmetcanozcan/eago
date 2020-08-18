@@ -28,11 +28,10 @@ const handleErr = (err) => {
      */
     (err, files) => {
       handleErr(err);
-
       let code = "";
       // Colllect codes
       files.forEach((file) => {
-        code = fs.readFileSync(path.join(dirPath, file));
+        code += fs.readFileSync(path.join(dirPath, file));
       });
       // Wrap it
       code = wrapCode(typeName, code);

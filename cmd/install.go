@@ -19,35 +19,46 @@ var installCmd = &cobra.Command{
 	Short:   "Install package",
 	Long: `
 	Instal packages using git `,
-	PreRunE: cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cwd, _ := os.Getwd()
+		// Read eago.json
+		config.Parse(cwd)
+
 		save, _ := cmd.Flags().GetBool("save")
 		saveDev, _ := cmd.Flags().GetBool("save-dev")
-		if err := installPackage(args[0], save, saveDev); err != nil {
-			fmt.Println(err)
+
+		if len(args) == 0 {
+			// install all dependincies
+			for packageName := range config.EagoJSON.Dependincies {
+				installPackage(packageName, save, saveDev)
+			}
+		} else {
+			for _, packageName := range args {
+				installPackage(packageName, save, saveDev)
+			}
 		}
+		return nil
 	},
 }
 
 func installPackage(name string, save, saveDev bool) error {
-	cwd, _ := os.Getwd()
 
-	if err := runSpinnerTask("Verify package name", func() error {
-		// Read eago.json
-		config.Parse(cwd)
+	fmt.Println(name + ":")
+	if err := runSpinnerTask("\tVerify package name", func() error {
+
 		return verifyPackageName(name)
 	}); err != nil {
 		return err
 	}
 
-	if err := runSpinnerTask("Install package", func() error {
+	if err := runSpinnerTask("\tInstall package", func() error {
 		return exec.Command("git", "clone", "https://"+name, filepath.Join("packages", name)).Run()
 	}); err != nil {
 		return err
 	}
 
 	if save || saveDev {
-		if err := runSpinnerTask("Update eago.json", func() error {
+		if err := runSpinnerTask("\tUpdate eago.json", func() error {
 
 			// set dependincy and save it
 			if save {
