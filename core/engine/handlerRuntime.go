@@ -76,21 +76,31 @@ func (r *requestObject) body() *otto.Object {
 }
 
 func getResponseObject(ctx *fasthttp.RequestCtx, vm *otto.Otto, opt HandlerRuntimeInfo) otto.Value {
-	r := responseObject{handlerObject{vm, opt, ctx}}
+	r := responseObject{handlerObject{vm, opt, ctx}, false}
 	obj := lib.GetEmptyObject(vm)
 	obj.Set("write", r.writeFunc())
 	obj.Set("status", r.statusFunc())
+	obj.Set("end", r.endFunc())
 	return obj.Value()
 }
 
 type responseObject struct {
 	handlerObject
+	closed bool
 }
 
 func (r *responseObject) writeFunc() interface{} {
 	return func(data string) int {
-		i, _ := r.ctx.WriteString(data)
-		return i
+		if !r.closed {
+			i, _ := r.ctx.WriteString(data)
+			return i
+		}
+		return -1
+	}
+}
+func (r *responseObject) endFunc() interface{} {
+	return func() {
+		r.closed = true
 	}
 }
 

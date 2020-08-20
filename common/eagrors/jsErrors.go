@@ -23,11 +23,20 @@ func (p ProcessExitError) Error() string {
 
 // RecoverRuntime :
 func RecoverRuntime(method, url string) {
+	args := []interface{}{" in ", method, " ", url}
+	Recover(args)
+}
+
+// Recover :
+func Recover(args ...interface{}) {
 	if p := recover(); p != nil {
 		switch t := p.(type) {
 		case error:
 			e, ok := t.(*ProcessExitError)
-			args := []interface{}{t, " in ", method, " ", url}
+			_args := make([]interface{}, 0)
+			_args = append(_args, t)
+			_args = append(_args, " ")
+			args = append(_args, args...)
 			if ok && e.code == 0 {
 				loggers.Default().Info(args...)
 			} else {
@@ -38,5 +47,4 @@ func RecoverRuntime(method, url string) {
 		}
 
 	}
-
 }

@@ -23,6 +23,8 @@ func Start(opt StartOptions) {
 	loggers.InitializeLoggers()
 	lib.UpdateEnginePathVars(opt.AppDir)
 
+	defer eagrors.Recover("on starting app ")
+
 	bundles, err := parseHandlers(lib.HandlerDirPath)
 
 	if err != nil {
@@ -95,6 +97,7 @@ func getHandlerHandlerFunc(bundles map[string]*handlerBundle) func(ctx *fasthttp
 		for _, bundle := range bundles {
 			url := string(ctx.Path())
 			method := string(ctx.Method())
+			defer eagrors.Recover(method, url)
 			if bundle.URLPath.Check(url) {
 				prog, err := bundle.getProgram(method)
 				if err != nil {
