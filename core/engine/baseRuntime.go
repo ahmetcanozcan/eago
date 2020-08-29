@@ -1,6 +1,8 @@
 package engine
 
 import (
+	"fmt"
+
 	"github.com/ahmetcanozcan/eago/common/eagrors"
 	"github.com/ahmetcanozcan/eago/core/engine/js"
 	"github.com/ahmetcanozcan/eago/core/engine/js/bootstrap"
@@ -21,6 +23,13 @@ func createBaseRuntime() *otto.Otto {
 
 	// Set base runtime utilities
 	vm.Set("__require", getRequireFunction(vm))
+
+	vm.Set("print", func(call otto.FunctionCall) otto.Value {
+		for _, arg := range call.ArgumentList {
+			fmt.Print(arg.String(), " ")
+		}
+		return otto.UndefinedValue()
+	})
 
 	// Export console.log utilities
 	js.NewConsole().Export(vm)

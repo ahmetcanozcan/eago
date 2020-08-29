@@ -40,6 +40,7 @@ func createNewProject(baseDir string, force bool) error {
 		filepath.Join(baseDir, "modules"),
 		filepath.Join(baseDir, "packages"),
 		filepath.Join(baseDir, "handlers"),
+		filepath.Join(baseDir, "events"),
 	}
 
 	if err := runSpinnerTask("Check folder", func() error {

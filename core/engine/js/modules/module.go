@@ -10,6 +10,7 @@ var systemModules = map[string]SysModule{
 	"psql":   NewSQLModule(),
 	"shared": NewSharedData(),
 	"http":   NewHTTP(),
+	"events": NewEventModule(),
 }
 
 // GetSystemModule returns system module

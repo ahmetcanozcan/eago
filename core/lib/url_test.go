@@ -88,4 +88,31 @@ func TestURL(t *testing.T) {
 				"c": "3",
 			})
 	})
+
+	t.Run("GetQueryParam", func(t *testing.T) {
+		c := qt.New(t)
+
+		for _, testCase := range []struct {
+			s string
+			m map[string]interface{}
+		}{
+			{
+				s: "name=HAL&test=HELLO",
+				m: map[string]interface{}{
+					"name": "HAL",
+					"test": "HELLO",
+				},
+			},
+			{
+				s: "name=HAL&test",
+				m: map[string]interface{}{
+					"name": "HAL",
+					"test": true,
+				},
+			},
+		} {
+			res := GetQueryValues(testCase.s)
+			c.Assert(res, qt.CmpEquals(), testCase.m)
+		}
+	})
 }

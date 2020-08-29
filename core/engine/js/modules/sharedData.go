@@ -30,5 +30,19 @@ func (s *SharedData) Export() *otto.Object {
 		name := call.Argument(0).String()
 		return s.driver.Get(name)
 	})
+
+	obj.Set("update", func(call otto.FunctionCall) otto.Value {
+		name := call.Argument(0).String()
+		fresult := otto.UndefinedValue()
+		s.driver.Update(name, func(v otto.Value) otto.Value {
+			res, err := call.Argument(1).Call(call.This, v)
+			if err != nil {
+				panic(err)
+			}
+			fresult = res
+			return res
+		})
+		return fresult
+	})
 	return obj
 }

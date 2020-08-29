@@ -37,6 +37,11 @@ func Start(opt StartOptions) {
 		return
 	}
 
+	if err := startEvents(lib.EventDirPath); err != nil {
+		loggers.Default().Error(err)
+		return
+	}
+
 	builder := server.NewServerBuilder()
 	// Handler
 	builder.AddHandlerFunc(getHandlerHandlerFunc(bundles))
@@ -117,6 +122,18 @@ func getHandlerHandlerFunc(bundles map[string]*handlerBundle) func(ctx *fasthttp
 
 		return false
 	}
+}
+
+func startEvents(basedir string) error {
+	programs, err := getEventPrograms(basedir)
+	if err != nil {
+		return err
+	}
+	for name, program := range programs {
+		vm := engine.GetEventRuntime(name)
+		vm.Run(program)
+	}
+	return nil
 }
 
 func runStartJS(filename string) error {

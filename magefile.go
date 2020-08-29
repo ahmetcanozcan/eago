@@ -37,12 +37,35 @@ func init() {
 
 // Eago builds eago binary
 func Eago() error {
+	if err := BootstrapFiles(); err != nil {
+		return err
+	}
+	if err := ModuleScripts(); err != nil {
+		return err
+	}
 	return sh.RunWith(flagEnv(), goExe, "build", "-ldflags", ldflags, ".")
 }
 
+// Install
+func Install() error {
+	if err := BootstrapFiles(); err != nil {
+		return err
+	}
+
+	if err := ModuleScripts(); err != nil {
+		return err
+	}
+
+	return sh.Run("go", "install", ".")
+}
+
 // BootstrapFiles evaluates bootstrap files
-func BootstrapFiles() {
-	sh.Run("node", "scripts/buildBootstrapFiles.js")
+func BootstrapFiles() error {
+	return sh.Run("node", "scripts/buildBootstrapFiles.js")
+}
+
+func ModuleScripts() error {
+	return sh.Run("node", "scripts/buildBootstrapFiles.js")
 }
 
 func flagEnv() map[string]string {

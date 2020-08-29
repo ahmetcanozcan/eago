@@ -7,8 +7,8 @@ var (
 	ModuleDirPath string
 	// HandlerDirPath is handlers directory of project
 	HandlerDirPath string
-	// NitDirPath is nits directory of project
-	NitDirPath string
+	// EventDirPath is events directory of project
+	EventDirPath string
 	// FileDirPath :
 	FileDirPath string
 	// PackageDirPath is the directory that contains 3rd party modules
@@ -22,7 +22,7 @@ func UpdateEnginePathVars(baseDir string) {
 	BasePath = baseDir
 	ModuleDirPath = filepath.Join(baseDir, "modules")
 	HandlerDirPath = filepath.Join(baseDir, "handlers")
-	NitDirPath = filepath.Join(baseDir, "nits")
+	EventDirPath = filepath.Join(baseDir, "events")
 	FileDirPath = filepath.Join(baseDir, "files")
 	PackageDirPath = filepath.Join(baseDir, "packages")
 }

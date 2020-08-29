@@ -43,15 +43,15 @@ func TestFSModule(t *testing.T) {
 		tvm := vm.Copy()
 		_, err := tvm.Run(`
 		var mockReader = (function () {
-			var data = ["Hello", "From", "Test"];
-			var index = 0;
+			var data = "Hello From Test";
+			var isSent = false
 		
-			function readLine() {
-				if (data.length <= index) return undefined;
-				index++;
-				return data[index-1];
+			function read() {
+				if(isSent) return;
+				isSent= true;
+				return data;
 			}
-			return { readLine: readLine };
+			return { read: read };
 		})();
 		var mockWriter = {};
 		var result = "";
@@ -62,7 +62,7 @@ func TestFSModule(t *testing.T) {
 		`)
 		c.Assert(err, qt.IsNil)
 		result, err := tvm.Get("result")
-		c.Assert(result.String(), qt.Equals, "Hello\nFrom\nTest")
+		c.Assert(result.String(), qt.Equals, "Hello From Test")
 	})
 
 }

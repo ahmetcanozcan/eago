@@ -1,7 +1,7 @@
 <p align="center">
   <a ">
     <img
-      src="./logo.png"
+      src="assets/logo.png"
       width="300"
     />
   </a>
@@ -38,32 +38,18 @@
 <br>
 <br>
 
+## What is this
+
+Eago is a javascript runtime built with Golang. Unlike other runtimes, Eago no needs for an event loop to execute async tasks. It uses Golang's concurrent features and design patterns. This is not the only difference, Eago has a lot of features for more maintainable web development
+
+See guides for more detail
+
 ## Features
 
--   Clean, synchronous javascript code (no callbacks, no promisses, no async/awaits)
--   Maintainable project structre
--   Native deployment support
+- Clean, synchronous javascript code (no callbacks, no promisses, no async/awaits)
+- Maintainable project development
+- Fast binary modules for web development
 
-## Install
+## Examples
 
-Eago can be installed using go toolchain
-
-```bash
-$ go get github.com/ahmetcanozcan/eago
-```
-
-## Getting Started
-
-Firstly create a project
-
-    $ eago new project <project_name>
-    $ cd <project_name>
-
-After coding a basic handler, the App will be ready to start
-
-    $ echo "response.write('HELLO WORLD');" >> handlers/index.get.js
-    $ eago start
-
-## Docs
-
-Check <https://ahmetcanozcan.github.io/eago> for more information about Eago
+Check out the [examples](https://github.com/ahmetcanozcan/eago/tree/master/examples/app) to see eago in use

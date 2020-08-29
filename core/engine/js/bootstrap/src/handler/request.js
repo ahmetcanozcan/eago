@@ -5,10 +5,11 @@ request.body.json = (function () {
   };
 })();
 
-request.body.readLine = (function () {
+request.body.read = (function () {
   var sent = false;
   return function () {
     if (sent) return undefined;
+    sent = true;
     return request.body.text();
   };
 })();

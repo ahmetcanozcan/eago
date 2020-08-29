@@ -47,6 +47,24 @@ func (p URLPath) GetURLParams(url string) map[string]string {
 	return m
 }
 
+// GetQueryValues :
+func GetQueryValues(queryString string) map[string]interface{} {
+	res := make(map[string]interface{})
+	for _, part := range strings.Split(queryString, "&") {
+		kv := strings.Split(part, "=")
+		if len(kv) > 2 {
+			continue
+		}
+		if len(kv) == 2 {
+			res[kv[0]] = kv[1]
+		} else {
+			res[kv[0]] = true
+		}
+	}
+
+	return res
+}
+
 // NewURLPath returns new url path
 func NewURLPath(s string) *URLPath {
 	s = cleanURLTrials(s)

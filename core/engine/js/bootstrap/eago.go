@@ -18,7 +18,11 @@ func init() {
 }
  
 var eagoBootstrapJS string = `
-  var require = (function () {
+  var println = function println() {
+  print.apply(void 0, arguments);
+  print("\n");
+};
+var require = (function () {
   function require(str) {
     if (str.substr(0, 2) == "./") {
       str = __dirname + str.substr(2);

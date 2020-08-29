@@ -1,6 +1,8 @@
 package engine
 
 import (
+	"net/url"
+
 	"github.com/ahmetcanozcan/eago/common/eagrors"
 	"github.com/ahmetcanozcan/eago/common/loggers"
 	"github.com/ahmetcanozcan/eago/core/engine/js/bootstrap"
@@ -31,15 +33,11 @@ func GetHandlerRuntime(ctx *fasthttp.RequestCtx, opt HandlerRuntimeInfo) *otto.O
 func getRequestObject(ctx *fasthttp.RequestCtx, vm *otto.Otto, opt HandlerRuntimeInfo) otto.Value {
 	r := requestObject{handlerObject{vm, opt, ctx}}
 	obj := lib.GetEmptyObject(vm)
-	err := eagrors.HandleErrors(
-		obj.Set("method", r.method()),
-		obj.Set("params", r.params()),
-		obj.Set("header", r.headerFunc()),
-		obj.Set("body", r.body()),
-	)
-	if err != nil {
-		// TODO:
-	}
+	obj.Set("method", string(ctx.Method()))
+	obj.Set("params", opt.Params)
+	obj.Set("header", r.headerFunc)
+	obj.Set("body", r.getBody())
+	obj.Set("query", r.getQueryParams())
 	return obj.Value()
 }
 
@@ -53,20 +51,11 @@ type requestObject struct {
 	handlerObject
 }
 
-func (r *requestObject) method() string {
-	return string(r.ctx.Method())
+func (r *requestObject) headerFunc(name string) string {
+	return string(r.ctx.Request.Header.Peek(name))
 }
 
-func (r *requestObject) params() map[string]string {
-	return r.opt.Params
-}
-func (r *requestObject) headerFunc() interface{} {
-	return func(name string) string {
-		return string(r.ctx.Request.Header.Peek(name))
-	}
-}
-
-func (r *requestObject) body() *otto.Object {
+func (r *requestObject) getBody() *otto.Object {
 	o := lib.GetEmptyObject(r.vm)
 	o.Set("text", func(call otto.FunctionCall) otto.Value {
 		v, _ := otto.ToValue(string(r.ctx.Request.Body()))
@@ -75,12 +64,21 @@ func (r *requestObject) body() *otto.Object {
 	return o
 }
 
+func (r *requestObject) getQueryParams() otto.Value {
+	queryStr := string(r.ctx.URI().QueryString())
+	queryStr, _ = url.QueryUnescape(queryStr)
+	o, _ := r.vm.ToValue(lib.GetQueryValues(queryStr))
+	return o
+}
+
 func getResponseObject(ctx *fasthttp.RequestCtx, vm *otto.Otto, opt HandlerRuntimeInfo) otto.Value {
 	r := responseObject{handlerObject{vm, opt, ctx}, false}
 	obj := lib.GetEmptyObject(vm)
-	obj.Set("write", r.writeFunc())
-	obj.Set("status", r.statusFunc())
-	obj.Set("end", r.endFunc())
+	obj.Set("write", r.write)
+	obj.Set("status", r.status)
+	obj.Set("end", r.end)
+	obj.Set("setHeader", r.setHeader)
+	obj.Set("__redirect", r.redirect)
 	return obj.Value()
 }
 
@@ -89,25 +87,27 @@ type responseObject struct {
 	closed bool
 }
 
-func (r *responseObject) writeFunc() interface{} {
-	return func(data string) int {
-		if !r.closed {
-			i, _ := r.ctx.WriteString(data)
-			return i
-		}
-		return -1
+func (r *responseObject) write(data string) int {
+	if !r.closed {
+		i, _ := r.ctx.WriteString(data)
+		return i
 	}
+	return -1
 }
-func (r *responseObject) endFunc() interface{} {
-	return func() {
-		r.closed = true
-	}
+func (r *responseObject) end() {
+	r.closed = true
 }
 
-func (r *responseObject) statusFunc() interface{} {
-	return func(code int) {
-		r.ctx.SetStatusCode(code)
-	}
+func (r *responseObject) status(code int) {
+	r.ctx.SetStatusCode(code)
+}
+
+func (r *responseObject) redirect(url string, code int) {
+	r.ctx.Redirect(url, code)
+}
+
+func (r *responseObject) setHeader(key, value string) {
+	r.ctx.Response.Header.Set(key, value)
 }
 
 // HandlerRuntimeInfo contains information for handler runtime
