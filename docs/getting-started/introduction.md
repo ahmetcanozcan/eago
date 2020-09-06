@@ -12,7 +12,7 @@ Eago is a Javascript runtime for web development. Unlike other runtimes, Eago no
 
 Check out the [examples](https://github.com/ahmetcanozcan/eago/tree/master/examples/app) to see eago in use
 
-## Insperid From
+## Inspired From
 
 - [Nuxt.js](https://nuxtjs.org/)
 - [Express](https://expressjs.com/)
